@@ -178,15 +178,17 @@ public class JavaTasks {
         }
 
         class Address implements Comparable {
-            private String address;
+            private String streetName;
+            private int number;
             private List<Person> persons = new ArrayList<>();
 
             private Address(String streetName, int number) {
-                address = streetName + " " + number;
+                this.streetName = streetName;
+                this.number = number;
             }
 
             private boolean isThisAddress(String streetName, int number) {
-                return address.equals(streetName + " " + number);
+                return this.streetName.equals(streetName) && this.number == number;
             }
 
             private void addPerson(String surname, String name) {
@@ -202,7 +204,11 @@ public class JavaTasks {
                 if (getClass() != obj.getClass()) throw new IllegalArgumentException();
 
                 Address other = (Address) obj;
-                return address.compareTo(other.address);
+                if (streetName.compareTo(other.streetName) < 0) return -1;
+                if (streetName.compareTo(other.streetName) == 0)
+                    if (number <= other.number) return -1;
+
+                return 1;
             }
         }
 
@@ -214,7 +220,7 @@ public class JavaTasks {
             while (scanner.hasNext()) {
                 String tmp = scanner.nextLine();
 
-                if (!tmp.matches("([А-я|Ёё]+ ){2}- [А-я|Ёё]+(-[А-я|Ёё]+)* [0-9]+"))
+                if (!tmp.matches("([А-яЁёA-z]+ ){2}- [А-яЁёA-z]+(-[А-яЁёA-z]+)* [0-9]+"))
                     throw new IllegalArgumentException();
 
                 String[] parts = tmp.split(" ");
@@ -245,7 +251,7 @@ public class JavaTasks {
         try {
             FileWriter writer = new FileWriter(outputName);
             for (Address adr : input) {
-                writer.write(adr.address + " - ");
+                writer.write(adr.streetName + " " + adr.number + " - ");
                 for (int i = 0; i < adr.persons.size(); i++) {
                     writer.write(adr.persons.get(i).surname + " ");
                     writer.write(adr.persons.get(i).name);
