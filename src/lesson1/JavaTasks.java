@@ -1,6 +1,5 @@
 package lesson1;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -76,19 +75,12 @@ public class JavaTasks {
                 if (getClass() != obj.getClass()) throw new IllegalArgumentException();
 
                 Time other = (Time) obj;
-                if (!noon && other.noon) return 1;
-                if (noon && !other.noon) return -1;
+                if (!noon && other.noon) return -1;
+                if (noon && !other.noon) return 1;
 
                 Integer secThis = 3600 * (hours % 12) + 60 * minutes + seconds;
                 Integer secOther = 3600 * (other.hours % 12) + 60 * other.minutes + other.seconds;
-                switch (secThis.compareTo(secOther)) {
-                    case -1:
-                        return 1;
-                    case 1:
-                        return -1;
-                    default:
-                        return 0;
-                }
+                return secThis.compareTo(secOther);
             }
 
             @Override
@@ -122,18 +114,7 @@ public class JavaTasks {
             System.out.println("File open failed");
         }
 
-        // insertion sort: O(n) * O(n) = O(n^2)
-        for (int i = 1; i < input.size(); i++) {
-            Time current = input.get(i);
-            int j = i - 1;
-            for (; j >= 0; j--) {
-                if (input.get(j).compareTo(current) < 0)
-                    input.set(j + 1, input.get(j));
-                else
-                    break;
-            }
-            input.set(j + 1, current);
-        }
+        input.sort(Time::compareTo);
 
         // writing to output file
         try {
@@ -173,7 +154,111 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
     static public void sortAddresses(String inputName, String outputName) {
-        throw new NotImplementedError();
+        class Person implements Comparable {
+            private String surname, name;
+
+            public Person(String surname, String name) {
+                this.surname = surname;
+                this.name = name;
+            }
+
+            // -1 => this < obj; 0 => this == obj; 1 => this > obj
+            @Override
+            public int compareTo(@NotNull Object obj) {
+                if (this == obj) return 0;
+                if (getClass() != obj.getClass()) throw new IllegalArgumentException();
+
+                Person other = (Person) obj;
+                if (surname.compareTo(other.surname) < 0) return -1;
+                if (surname.compareTo(other.surname) == 0)
+                    if (name.compareTo(other.name) <= 0) return -1;
+
+                return 1;
+            }
+        }
+
+        class Address implements Comparable {
+            private String address;
+            private List<Person> persons = new ArrayList<>();
+
+            private Address(String streetName, int number) {
+                address = streetName + " " + number;
+            }
+
+            private boolean isThisAddress(String streetName, int number) {
+                return address.equals(streetName + " " + number);
+            }
+
+            private void addPerson(String surname, String name) {
+                persons.add(new Person(surname, name));
+            }
+
+            private void sortPersons() { persons.sort(Person::compareTo); }
+
+            // -1 => this < obj; 0 => this == obj; 1 => this > obj
+            @Override
+            public int compareTo(@NotNull Object obj) {
+                if (this == obj) return 0;
+                if (getClass() != obj.getClass()) throw new IllegalArgumentException();
+
+                Address other = (Address) obj;
+                return address.compareTo(other.address);
+            }
+        }
+
+        List<Address> input = new ArrayList<>();
+
+        // reading from input file
+        try {
+            Scanner scanner = new Scanner(new File(inputName));
+            while (scanner.hasNext()) {
+                String tmp = scanner.nextLine();
+
+                if (!tmp.matches("([А-я|Ёё]+ ){2}- [А-я|Ёё]+(-[А-я|Ёё]+)* [0-9]+"))
+                    throw new IllegalArgumentException();
+
+                String[] parts = tmp.split(" ");
+
+                boolean fl = true;
+                int number = Integer.parseInt(parts[4]);
+                for (Address adr : input)
+                    if (adr.isThisAddress(parts[3], number)) {
+                        fl = false;
+                        adr.addPerson(parts[0], parts[1]);
+                    }
+
+                if (fl) {
+                    input.add(new Address(parts[3], number));
+                    input.get(input.size() - 1).addPerson(parts[0], parts[1]);
+                }
+            }
+            scanner.close();
+        } catch (IOException e) {
+            System.out.println("File open failed");
+        }
+
+        input.sort(Address::compareTo);
+        for (Address adr : input)
+            adr.sortPersons();
+
+        // writing to output file
+        try {
+            FileWriter writer = new FileWriter(outputName);
+            for (Address adr : input) {
+                writer.write(adr.address + " - ");
+                for (int i = 0; i < adr.persons.size(); i++) {
+                    writer.write(adr.persons.get(i).surname + " ");
+                    writer.write(adr.persons.get(i).name);
+                    if (i == adr.persons.size() - 1)
+                        writer.write("\n");
+                    else
+                        writer.write(", ");
+                }
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("File create failed");
+        }
     }
 
     /**
@@ -262,7 +347,50 @@ public class JavaTasks {
      * 2
      */
     static public void sortSequence(String inputName, String outputName) {
-        throw new NotImplementedError();
+        List<Integer> input = new ArrayList<>();
+        Map<Integer, Integer> count = new HashMap<>();
+
+        // reading from input file
+        try {
+            Scanner scanner = new Scanner(new File(inputName));
+            while (scanner.hasNext()) {
+                int number = Integer.parseInt(scanner.nextLine());
+                input.add(number);
+
+                if (count.containsKey(number))
+                    count.put(number, count.get(number) + 1);
+                else
+                    count.put(number, 1);
+            }
+            scanner.close();
+        } catch (IOException e) {
+            System.out.println("File open failed");
+        }
+
+        int value = 0;
+        int max = 0;
+        for (Map.Entry<Integer, Integer> entry : count.entrySet()) {
+            if (entry.getValue() > max ||
+                    (entry.getValue() == max && value > entry.getKey())) {
+                value = entry.getKey();
+                max = entry.getValue();
+            }
+        }
+
+        // writing to output file
+        try {
+            FileWriter writer = new FileWriter(outputName);
+
+            for (Integer i : input)
+                if (!i.equals(value)) writer.write(i + "\n");
+
+            while (max-- > 0)
+                writer.write(value + "\n");
+
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("File create failed");
+        }
     }
 
     /**
