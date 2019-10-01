@@ -1,6 +1,7 @@
 package lesson1
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import util.PerfResult
 import util.estimate
 import java.io.BufferedWriter
@@ -45,6 +46,19 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+
+        //my tests
+        try {
+            sortTimes("input/time_in4.txt", "temp.txt")
+            assertFileContent("temp.txt", File("input/time_out4.txt").readLines())
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            assertThrows(IllegalArgumentException::class.java) { sortTimes("input/time_in5.txt", "temp.txt") }
+        } finally {
+            File("temp.txt").delete()
+        }
     }
 
     protected fun sortAddresses(sortAddresses: (String, String) -> Unit) {
@@ -70,6 +84,26 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         try {
             sortAddresses("input/addr_in3.txt", "temp.txt")
             assertFileContent("temp.txt", File("input/addr_out3.txt").readLines())
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        //my tests
+        try {
+            assertThrows(IllegalArgumentException::class.java) { sortAddresses("input/addr_in4.txt", "temp.txt") }
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortAddresses("input/addr_in5.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    Улица 1 - Иванов Дмитрий, Иванов Иван, Петров Петр
+                    Улица 2 - Петров Петр
+                    Улица 3 - Дроздов Владимир
+                """.trimIndent()
+            )
         } finally {
             File("temp.txt").delete()
         }
@@ -113,6 +147,27 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                     24.7
                     99.5
                     121.3
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        // my test
+        try {
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    -273.0
+                    -3.0
+                    0.0
+                    0.0
+                    1.0
+                    2.0
+                    3.0
+                    500.0
+                    500.0
                 """.trimIndent()
             )
         } finally {
@@ -278,6 +333,32 @@ abstract class AbstractTaskTests : AbstractFileTests() {
             File("temp.txt").delete()
         }
 
+        // my test
+        try {
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                        2
+                        2
+                        2
+                        2
+                        3
+                        4
+                        5
+                        5
+                        6
+                        7
+                        1
+                        1
+                        1
+                        1
+                    """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+
         fun testGeneratedSequence(totalSize: Int, answerSize: Int): PerfResult<Unit> {
             try {
                 val res = generateSequence(totalSize, answerSize)
@@ -326,6 +407,11 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         val result = arrayOf(null, null, null, null, null, 1, 3, 9, 13, 18, 23)
         mergeArrays(arrayOf(4, 9, 15, 20, 23), result)
         assertArrayEquals(arrayOf(1, 3, 4, 9, 9, 13, 15, 18, 20, 23, 23), result)
+
+        // my test
+        val result1 = arrayOf(null, null, null, null, null, null, 2, 3, 4, 5, 7, 12, 15)
+        mergeArrays(arrayOf(2, 3, 4, 5, 8, 14), result1)
+        assertArrayEquals(arrayOf(2, 2, 3, 3, 4, 4, 5, 5, 7, 8, 12, 14, 15), result1)
 
         fun testGeneratedArrays(
             firstSize: Int,

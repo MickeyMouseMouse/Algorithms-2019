@@ -37,93 +37,88 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) {
-        class Time implements Comparable {
-            private byte hours, minutes, seconds;
-            private boolean noon; // false = AM, true = PM
+    static class Time {
+        private byte hours, minutes, seconds;
+        private boolean noon; // false = AM, true = PM
 
-            private Time(String str) {
-                String[] parts = str.split("[ :]");
+        private Time(String str) {
+            if (!str.matches("([0-9]{2}:){2}[0-9]{2} (AM|PM)"))
+                throw new IllegalArgumentException(str);
 
-                if (parts.length != 4) throw new IllegalArgumentException(str);
+            String[] parts = str.split("[ :]");
 
-                try {
-                    hours = Byte.parseByte(parts[0]);
-                    minutes = Byte.parseByte(parts[1]);
-                    seconds = Byte.parseByte(parts[2]);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException(str);
-                }
-
-                if ( !(hours >= 0 && hours <= 12) ||
-                     !(minutes >= 0 && minutes <= 59) ||
-                     !(seconds >= 0 && seconds <= 59) ) throw new IllegalArgumentException(str);
-
-                if (parts[3].equals("AM"))
-                    noon = false;
-                else
-                    if (parts[3].equals("PM"))
-                        noon = true;
-                    else
-                        throw new IllegalArgumentException(str);
+            try {
+                hours = Byte.parseByte(parts[0]);
+                minutes = Byte.parseByte(parts[1]);
+                seconds = Byte.parseByte(parts[2]);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(str);
             }
 
-            // -1 => this < obj; 0 => this == obj; 1 => this > obj
-            @Override
-            public int compareTo(@NotNull Object obj) {
-                if (this == obj) return 0;
-                if (getClass() != obj.getClass()) throw new IllegalArgumentException();
+            if ( !(hours >= 0 && hours <= 12) ||
+                 !(minutes >= 0 && minutes <= 59) ||
+                 !(seconds >= 0 && seconds <= 59) )
+                throw new IllegalArgumentException(str);
 
-                Time other = (Time) obj;
-                if (!noon && other.noon) return -1;
-                if (noon && !other.noon) return 1;
-
-                Integer secThis = 3600 * (hours % 12) + 60 * minutes + seconds;
-                Integer secOther = 3600 * (other.hours % 12) + 60 * other.minutes + other.seconds;
-                return secThis.compareTo(secOther);
-            }
-
-            @Override
-            public String toString() {
-                StringBuilder result = new StringBuilder();
-
-                if (hours < 10) result.append("0");
-                result.append(hours).append(":");
-                if (minutes < 10) result.append("0");
-                result.append(minutes).append(":");
-                if (seconds < 10) result.append("0");
-                result.append(seconds).append(" ");
-                if (noon)
-                    result.append("PM");
-                else
-                    result.append("AM");
-
-                return result.toString();
-            }
+            if (parts[3].equals("AM"))
+                noon = false;
+            else
+                if (parts[3].equals("PM"))
+                    noon = true;
+            else
+                throw new IllegalArgumentException(str);
         }
 
+        @Override
+        public String toString() {
+            StringBuilder result = new StringBuilder();
+
+            if (hours < 10) result.append("0");
+            result.append(hours).append(":");
+            if (minutes < 10) result.append("0");
+            result.append(minutes).append(":");
+            if (seconds < 10) result.append("0");
+            result.append(seconds).append(" ");
+            if (noon)
+                result.append("PM");
+            else
+                result.append("AM");
+
+            return result.toString();
+        }
+    }
+
+    static public class SortedByTimes implements Comparator<Time> {
+        @Override
+        public int compare(Time time1, Time time2) {
+            if (!time1.noon && time2.noon) return -1;
+            if (time1.noon && !time2.noon) return 1;
+
+            Integer secThis = 3600 * (time1.hours % 12) + 60 * time1.minutes + time1.seconds;
+            Integer secOther = 3600 * (time2.hours % 12) + 60 * time2.minutes + time2.seconds;
+            return secThis.compareTo(secOther);
+        }
+    }
+
+    static public void sortTimes(String inputName, String outputName) {
         List<Time> input = new ArrayList<>();
 
         // reading from input file
-        try {
-            Scanner scanner = new Scanner(new File(inputName));
+        try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext())
                 input.add(new Time(scanner.nextLine()));
-            scanner.close();
         } catch (IOException e) {
-            System.out.println("File open failed");
+            throw new RuntimeException("File reading failed");
         }
 
-        input.sort(Time::compareTo);
+        input.sort(new SortedByTimes());
 
         // writing to output file
-        try {
-            FileWriter writer = new FileWriter(outputName);
+        try (FileWriter writer = new FileWriter(outputName)) {
             for (Time time : input)
                 writer.write(time.toString() + "\n");
-            writer.close();
         } catch (IOException e) {
-            System.out.println("File create failed");
+            throw new RuntimeException("File writing failed");
         }
     }
 
@@ -153,70 +148,55 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
+    static class Person {
+        private String surname, name;
+
+        public Person(String surname, String name) {
+            this.surname = surname;
+            this.name = name;
+        }
+    }
+
+    static public class SortedByPersons implements Comparator<Person> {
+        @Override
+        public int compare(Person p1, Person p2) {
+            if (p1.surname.compareTo(p2.surname) < 0) return -1;
+            if (p1.surname.compareTo(p2.surname) == 0) {
+                if (p1.name.compareTo(p2.name) < 0) return -1;
+                if (p1.name.compareTo(p2.name) == 0) return 0;
+            }
+            return 1;
+        }
+    }
+
+    static class Address implements Comparable {
+        private String streetName;
+        private int number;
+
+        private Address(String streetName, int number) {
+            this.streetName = streetName;
+            this.number = number;
+        }
+
+        @Override
+        public int compareTo(@NotNull Object obj) {
+            if (this == obj) return 0;
+
+            Address other = (Address) obj;
+            if (streetName.compareTo(other.streetName) < 0) return -1;
+            if (streetName.compareTo(other.streetName) == 0) {
+                if (number < other.number) return -1;
+                if (number == other.number) return 0;
+            }
+            return 1;
+        }
+    }
+
     static public void sortAddresses(String inputName, String outputName) {
-        class Person implements Comparable {
-            private String surname, name;
-
-            public Person(String surname, String name) {
-                this.surname = surname;
-                this.name = name;
-            }
-
-            // -1 => this < obj; 0 => this == obj; 1 => this > obj
-            @Override
-            public int compareTo(@NotNull Object obj) {
-                if (this == obj) return 0;
-                if (getClass() != obj.getClass()) throw new IllegalArgumentException();
-
-                Person other = (Person) obj;
-                if (surname.compareTo(other.surname) < 0) return -1;
-                if (surname.compareTo(other.surname) == 0)
-                    if (name.compareTo(other.name) <= 0) return -1;
-
-                return 1;
-            }
-        }
-
-        class Address implements Comparable {
-            private String streetName;
-            private int number;
-            private List<Person> persons = new ArrayList<>();
-
-            private Address(String streetName, int number) {
-                this.streetName = streetName;
-                this.number = number;
-            }
-
-            private boolean isThisAddress(String streetName, int number) {
-                return this.streetName.equals(streetName) && this.number == number;
-            }
-
-            private void addPerson(String surname, String name) {
-                persons.add(new Person(surname, name));
-            }
-
-            private void sortPersons() { persons.sort(Person::compareTo); }
-
-            // -1 => this < obj; 0 => this == obj; 1 => this > obj
-            @Override
-            public int compareTo(@NotNull Object obj) {
-                if (this == obj) return 0;
-                if (getClass() != obj.getClass()) throw new IllegalArgumentException();
-
-                Address other = (Address) obj;
-                if (streetName.compareTo(other.streetName) < 0) return -1;
-                if (streetName.compareTo(other.streetName) == 0)
-                    if (number <= other.number) return -1;
-
-                return 1;
-            }
-        }
-
-        List<Address> input = new ArrayList<>();
+        Map<Address, List<Person>> input = new TreeMap<>();
 
         // reading from input file
-        try {
-            Scanner scanner = new Scanner(new File(inputName));
+        try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext()) {
                 String tmp = scanner.nextLine();
 
@@ -225,45 +205,35 @@ public class JavaTasks {
 
                 String[] parts = tmp.split(" ");
 
-                boolean fl = true;
-                int number = Integer.parseInt(parts[4]);
-                for (Address adr : input)
-                    if (adr.isThisAddress(parts[3], number)) {
-                        fl = false;
-                        adr.addPerson(parts[0], parts[1]);
-                    }
-
-                if (fl) {
-                    input.add(new Address(parts[3], number));
-                    input.get(input.size() - 1).addPerson(parts[0], parts[1]);
-                }
+                Address current = new Address(parts[3], Integer.parseInt(parts[4]));
+                if (input.containsKey(current))
+                    input.get(current).add(new Person(parts[0], parts[1]));
+                else
+                    input.put(current,
+                            new ArrayList<>(Collections.singletonList(new Person(parts[0], parts[1]))));
             }
-            scanner.close();
         } catch (IOException e) {
-            System.out.println("File open failed");
+            throw new RuntimeException("File reading failed");
         }
 
-        input.sort(Address::compareTo);
-        for (Address adr : input)
-            adr.sortPersons();
+        for (List<Person> persons : input.values())
+            persons.sort(new SortedByPersons());
 
         // writing to output file
-        try {
-            FileWriter writer = new FileWriter(outputName);
-            for (Address adr : input) {
-                writer.write(adr.streetName + " " + adr.number + " - ");
-                for (int i = 0; i < adr.persons.size(); i++) {
-                    writer.write(adr.persons.get(i).surname + " ");
-                    writer.write(adr.persons.get(i).name);
-                    if (i == adr.persons.size() - 1)
+        try (FileWriter writer = new FileWriter(outputName)) {
+            for (Map.Entry<Address, List<Person>> pair : input.entrySet()) {
+                writer.write(pair.getKey().streetName + " " + pair.getKey().number + " - ");
+                for (int i = 0; i < pair.getValue().size(); i++) {
+                    writer.write(pair.getValue().get(i).surname + " ");
+                    writer.write(pair.getValue().get(i).name);
+                    if (i == pair.getValue().size() - 1)
                         writer.write("\n");
                     else
                         writer.write(", ");
                 }
             }
-            writer.close();
         } catch (IOException e) {
-            System.out.println("File create failed");
+            throw new RuntimeException("File writing failed");
         }
     }
 
@@ -297,29 +267,26 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
+
     static public void sortTemperatures(String inputName, String outputName) {
         List<Float> input = new ArrayList<>();
 
         // reading from input file
-        try {
-            Scanner scanner = new Scanner(new File(inputName));
+        try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext())
                 input.add(Float.parseFloat(scanner.nextLine()));
-            scanner.close();
         } catch (IOException e) {
-            System.out.println("File open failed");
+            throw new RuntimeException("File reading failed");
         }
 
         Collections.sort(input);
 
         // writing to output file
-        try {
-            FileWriter writer = new FileWriter(outputName);
+        try (FileWriter writer = new FileWriter(outputName)) {
             for (float i : input)
                 writer.write(i + "\n");
-            writer.close();
         } catch (IOException e) {
-            System.out.println("File create failed");
+            throw new RuntimeException("File writing failed");
         }
     }
 
@@ -357,8 +324,7 @@ public class JavaTasks {
         Map<Integer, Integer> count = new HashMap<>();
 
         // reading from input file
-        try {
-            Scanner scanner = new Scanner(new File(inputName));
+        try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext()) {
                 int number = Integer.parseInt(scanner.nextLine());
                 input.add(number);
@@ -368,34 +334,28 @@ public class JavaTasks {
                 else
                     count.put(number, 1);
             }
-            scanner.close();
         } catch (IOException e) {
-            System.out.println("File open failed");
+            throw new RuntimeException("File reading failed");
         }
 
         int value = 0;
         int max = 0;
-        for (Map.Entry<Integer, Integer> entry : count.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : count.entrySet())
             if (entry.getValue() > max ||
                     (entry.getValue() == max && value > entry.getKey())) {
                 value = entry.getKey();
                 max = entry.getValue();
             }
-        }
 
         // writing to output file
-        try {
-            FileWriter writer = new FileWriter(outputName);
-
+        try (FileWriter writer = new FileWriter(outputName)) {
             for (Integer i : input)
                 if (!i.equals(value)) writer.write(i + "\n");
 
             while (max-- > 0)
                 writer.write(value + "\n");
-
-            writer.close();
         } catch (IOException e) {
-            System.out.println("File create failed");
+            throw new RuntimeException("File writing failed");
         }
     }
 
