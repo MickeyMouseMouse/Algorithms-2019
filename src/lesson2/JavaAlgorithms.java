@@ -3,7 +3,12 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
@@ -32,7 +37,31 @@ public class JavaAlgorithms {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
     static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
-        throw new NotImplementedError();
+        List<Integer> input = new ArrayList<>();
+
+        // reading from input file
+        try (Scanner scanner = new Scanner(new File(inputName))) {
+            while (scanner.hasNext())
+                input.add(Integer.parseInt(scanner.nextLine()));
+        } catch (IOException | NumberFormatException e) {
+            throw new RuntimeException("File reading failed");
+        }
+
+        int max = 0;
+        int first = 0;
+        int second = 0;
+        for (int i = 0; i < input.size() - 1; i++) {
+            for (int j = i + 1; j < input.size(); j++) {
+                int profit = input.get(j) - input.get(i);
+                if (profit > max) {
+                    max = profit;
+                    first = i;
+                    second = j;
+                }
+            }
+        }
+
+        return new Pair<>(first + 1, second + 1);
     }
 
     /**
@@ -85,7 +114,28 @@ public class JavaAlgorithms {
      * но приветствуется попытка решить её самостоятельно.
      */
     static public int josephTask(int menNumber, int choiceInterval) {
-        throw new NotImplementedError();
+        int[] array = new int[menNumber];
+
+        for (int i = 0; i < menNumber; i++)
+            array[i] = i + 1;
+
+        int answer = 0;
+        int currentIndex = -1;
+        for (int i = 0; i < menNumber; i++) {
+            int j = 0;
+            while (j < choiceInterval) {
+                if (++currentIndex == menNumber) currentIndex = 0; // go to the beginning of the array
+                if (array[currentIndex] != 0)
+                    if (i == menNumber - 1) {
+                        answer = array[currentIndex];
+                        break;
+                    } else
+                        j++;
+            }
+            array[currentIndex] = 0; // 0 = deleted number
+        }
+
+        return answer;
     }
 
     /**
@@ -99,8 +149,27 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    static public String longestCommonSubstring(String first, String second) {
+        int[][] matrix = new int[first.length()][second.length()];
+
+        int max = 0;
+        int index = 0;
+        for (int i = 0; i < first.length(); i++)
+            for (int j = 0; j < second.length(); j++)
+                if (first.charAt(i) == second.charAt(j)) {
+                    if (i == 0 || j == 0)
+                        matrix[i][j] = 1;
+                    else
+                        matrix[i][j] = matrix[i - 1][j - 1] + 1;
+
+                    if (matrix[i][j] > max) {
+                        max = matrix[i][j];
+                        index = i;
+                    }
+                }
+
+        if (max == 0) return "";
+        return first.substring(index - max + 1, index + 1);
     }
 
     /**
@@ -114,7 +183,21 @@ public class JavaAlgorithms {
      * Единица простым числом не считается.
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        int answer = 0;
+        if (limit <= 1) return answer;
+        answer++; // 2 is prime
+        for (int i = 3; i <= limit; i++) {
+            if (i % 2 == 0) continue;
+            boolean fl = true;
+            for (int j = 3; j <= Math.sqrt(i); j += 2)
+                if (i % j == 0) {
+                    fl = false;
+                    break;
+                }
+            if (fl) answer++;
+        }
+
+        return answer;
     }
 
     /**
