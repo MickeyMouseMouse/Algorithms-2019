@@ -1,12 +1,13 @@
 package lesson2
 
+import org.junit.jupiter.api.Assertions.assertThrows
 import java.io.BufferedWriter
 import java.io.File
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.test.assertEquals
 
 abstract class AbstractAlgorithmsTests {
-
     private val minPrice = 42
 
     private val maxPrice = 99999
@@ -58,6 +59,11 @@ abstract class AbstractAlgorithmsTests {
         } finally {
             File("temp_prices.txt").delete()
         }
+
+        // my tests
+        assertEquals(1 to 7, optimizeBuyAndSell("input/buysell_in4.txt"))
+        assertEquals(1 to 5, optimizeBuyAndSell("input/buysell_in5.txt"))
+        assertThrows(RuntimeException::class.java) { optimizeBuyAndSell("input/buysell_in6.txt") }
     }
 
     fun josephTask(josephTask: (Int, Int) -> Int) {
@@ -71,6 +77,9 @@ abstract class AbstractAlgorithmsTests {
             assertEquals(1, josephTask(menNumber, 2))
             menNumber *= 2
         }
+
+        // my test
+        assertEquals(50, josephTask(50, 1))
     }
 
     fun longestCommonSubstring(longestCommonSubstring: (String, String) -> String) {
@@ -120,6 +129,9 @@ abstract class AbstractAlgorithmsTests {
                 File("input/ruslan_ludmila_2.txt").readText()
             ).trim()
         )
+
+        // my test
+        assertEquals("аабб", longestCommonSubstring("аабббввввггггг", "ааббвггг"))
     }
 
     fun calcPrimesNumber(calcPrimesNumber: (Int) -> Int) {
@@ -144,6 +156,9 @@ abstract class AbstractAlgorithmsTests {
         assertEquals(148933, calcPrimesNumber(2000000))
         assertEquals(348513, calcPrimesNumber(5000000))
         assertEquals(664579, calcPrimesNumber(10000000))
+
+        // my test
+        assertEquals(66, calcPrimesNumber(325))
     }
 
     fun baldaSearcher(baldaSearcher: (String, Set<String>) -> Set<String>) {

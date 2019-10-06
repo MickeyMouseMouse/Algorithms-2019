@@ -37,6 +37,10 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
+
+    // Трудоемкость: O(n^2), где n - количество входных строк
+    // Ресурсоемкость: O(n), где n - количество входных строк
+
     static class Time {
         private byte hours, minutes, seconds;
         private boolean noon; // false = AM, true = PM
@@ -148,6 +152,10 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
+
+    // Трудоемкость: O(n^2), где n - максимально количество человек, живущих по одному и тому же адресу
+    // Ресурсоемкость: O(n), где n - количество входных строк (длина строк также играет роль)
+
     static class Person {
         private String surname, name;
 
@@ -268,6 +276,8 @@ public class JavaTasks {
      * 121.3
      */
 
+    // Трудоемкость: O(n^2), где n - количество входных строк
+    // Ресурсоемкость: O(n), где n - количество входных строк
     static public void sortTemperatures(String inputName, String outputName) {
         List<Float> input = new ArrayList<>();
 
@@ -319,6 +329,9 @@ public class JavaTasks {
      * 2
      * 2
      */
+
+    // Трудоемкость: O(nln(n)), где n - количество входных значений
+    // Ресурсоемкость: O(n^2), где n - количество входных значений
     static public void sortSequence(String inputName, String outputName) {
         List<Integer> input = new ArrayList<>();
         Map<Integer, Integer> count = new HashMap<>();
@@ -373,12 +386,14 @@ public class JavaTasks {
      *
      * Результат: second = [1 3 4 9 9 13 15 18 20 23 28]
      */
+
+    // Трудоемкость: O(nln(n)), где n - количество входных значений
+    // Ресурсоемкость: O(1)
     static <T extends Comparable<T>> void mergeArrays(T[] first, T[] second) {
         int i = 0; // index for first
         int j = first.length; // index for second
         int z = 0; // index for "new" second
 
-        // merge sort: O(Nln(N))
         while (z < second.length) {
             if (j >= second.length || (i < first.length && first[i].compareTo(second[j]) < 0))
                 second[z++] = first[i++];

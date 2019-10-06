@@ -5,10 +5,7 @@ import kotlin.Pair;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
@@ -29,13 +26,16 @@ public class JavaAlgorithms {
      * 185
      *
      * Выбрать два момента времени, первый из них для покупки акций, а второй для продажи, с тем, чтобы разница
-     * между ценой продажи и ценой покупки была максимально большой. Второй момент должен быть раньше первого.
+     * между ценой продажи и ценой покупки была максимально большой. Второй момент должен быть позже первого.
      * Вернуть пару из двух моментов.
      * Каждый момент обозначается целым числом -- номер строки во входном файле, нумерация с единицы.
      * Например, для приведённого выше файла результат должен быть Pair(3, 4)
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
+
+    // Трудоемкость: O(n^2), где n - количество входных значений
+    // Ресурсоемкость: O(n), где n - количество входных значений
     static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
         List<Integer> input = new ArrayList<>();
 
@@ -113,6 +113,9 @@ public class JavaAlgorithms {
      * Общий комментарий: решение из Википедии для этой задачи принимается,
      * но приветствуется попытка решить её самостоятельно.
      */
+
+    // Трудоемкость: O(menNumber)
+    // Ресурсоемкость: O(menNumber)
     static public int josephTask(int menNumber, int choiceInterval) {
         int[] array = new int[menNumber];
 
@@ -149,6 +152,9 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
+
+    // Трудоемкость: O(first.length() * second.length())
+    // Ресурсоемкость: O(first.length() * second.length())
     static public String longestCommonSubstring(String first, String second) {
         int[][] matrix = new int[first.length()][second.length()];
 
@@ -182,6 +188,9 @@ public class JavaAlgorithms {
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
      */
+
+    // Трудоемкость: O(limit * ln(limit))
+    // Ресурсоемкость: O(1)
     static public int calcPrimesNumber(int limit) {
         int answer = 0;
         if (limit <= 1) return answer;
