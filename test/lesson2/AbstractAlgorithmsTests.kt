@@ -166,6 +166,7 @@ abstract class AbstractAlgorithmsTests {
             setOf("ТРАВА", "КРАН", "АКВА", "НАРТЫ"),
             baldaSearcher("input/balda_in1.txt", setOf("ТРАВА", "КРАН", "АКВА", "НАРТЫ", "РАК"))
         )
+
         assertEquals(
             setOf("БАЛДА"),
             baldaSearcher("input/balda_in2.txt", setOf("БАЛАБОЛ", "БАЛДА", "БАЛДАЗАВР"))
@@ -184,6 +185,12 @@ abstract class AbstractAlgorithmsTests {
                     "АППРОКСИМАЦИЯ", "ИНТЕРПОЛЯЦИЯ", "МАЙЕВТИКА", "ШРЕДИНГЕР", "ЭЙНШТЕЙН"
                 )
             )
+        )
+
+        // my test
+        assertEquals(
+            setOf("МАМА", "МЫЛА", "РАМУ"),
+            baldaSearcher("input/balda_in4.txt", setOf("МАМА", "МЫЛА", "РАМУ", "ПАПА", "НЕТ"))
         )
     }
 }

@@ -154,7 +154,7 @@ public class JavaTasks {
      */
 
     // Трудоемкость: O(n^2), где n - максимально количество человек, живущих по одному и тому же адресу
-    // Ресурсоемкость: O(n), где n - количество входных строк (длина строк также играет роль)
+    // Ресурсоемкость: O(n), где n - количество входных строк (длина строк также имеет значение)
 
     static class Person {
         private String surname, name;
@@ -331,7 +331,7 @@ public class JavaTasks {
      */
 
     // Трудоемкость: O(nln(n)), где n - количество входных значений
-    // Ресурсоемкость: O(n^2), где n - количество входных значений
+    // Ресурсоемкость: O(n), где n - количество входных значений
     static public void sortSequence(String inputName, String outputName) {
         List<Integer> input = new ArrayList<>();
         Map<Integer, Integer> count = new HashMap<>();

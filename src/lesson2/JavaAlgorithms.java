@@ -1,6 +1,5 @@
 package lesson2;
 
-import kotlin.NotImplementedError;
 import kotlin.Pair;
 
 import java.io.File;
@@ -35,7 +34,7 @@ public class JavaAlgorithms {
      */
 
     // Трудоемкость: O(n^2), где n - количество входных значений
-    // Ресурсоемкость: O(n), где n - количество входных значений
+    // Ресурсоемкость: O(1)
     static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
         List<Integer> input = new ArrayList<>();
 
@@ -235,7 +234,108 @@ public class JavaAlgorithms {
      * В файле буквы разделены пробелами, строки -- переносами строк.
      * Остальные символы ни в файле, ни в словах не допускаются.
      */
+
+    // Трудоемкость: O(i * j), где i и j размеры входной матрицы
+    // Ресурсоемкость: O(n), где n - длина искомого слова
+
+    // word = current word we are looking for
+    // index = number of current character in word
+    // i, j = coordinates of current point in inputField
+    // busy = characters which are busy already
+    private static boolean findWord(String word, int index, int i, int j, Set<Pair<Integer, Integer>> busy) {
+        // up
+        if (i != 0 && !busy.contains(new Pair<>(i - 1, j)))
+            if (inputField.get((i - 1) * width + j) == word.charAt(index))
+                if (index == word.length() - 1)
+                    return true;
+                else {
+                    Set<Pair<Integer, Integer>> tmp = new HashSet<>(busy);
+                    tmp.add(new Pair<>(i - 1, j));
+                    if (findWord(word, index + 1, i - 1, j, tmp)) return true;
+                }
+
+        // right
+        if (j != width - 1 && !busy.contains(new Pair<>(i, j + 1)))
+            if (inputField.get(i * width + j + 1) == word.charAt(index))
+                if (index == word.length() - 1)
+                    return true;
+                else {
+                    Set<Pair<Integer, Integer>> tmp = new HashSet<>(busy);
+                    tmp.add(new Pair<>(i, j + 1));
+                    if (findWord(word, index + 1, i, j + 1, tmp)) return true;
+                }
+
+        // down
+        if (i != height - 1 && !busy.contains(new Pair<>(i + 1, j)))
+            if (inputField.get((i + 1) * width + j) == word.charAt(index))
+                if (index == word.length() - 1)
+                    return true;
+                else {
+                    Set<Pair<Integer, Integer>> tmp = new HashSet<>(busy);
+                    tmp.add(new Pair<>(i + 1, j));
+                    if (findWord(word, index + 1, i + 1, j, tmp)) return true;
+                }
+
+        // left
+        if (j != 0 && !busy.contains(new Pair<>(i, j - 1)))
+            if (inputField.get(i * width + j - 1) == word.charAt(index))
+                if (index == word.length() - 1)
+                    return true;
+                else {
+                    Set<Pair<Integer, Integer>> tmp = new HashSet<>(busy);
+                    tmp.add(new Pair<>(i, j - 1));
+                    return findWord(word, index + 1, i, j - 1, tmp);
+                }
+
+        return false;
+    }
+
+    private static List<Character> inputField = new ArrayList<>();
+    private static int height = 0;
+    private static int width = 0;
     static public Set<String> baldaSearcher(String inputName, Set<String> words) {
-        throw new NotImplementedError();
+        inputField.clear();
+        height = 0;
+        Set<String> answer = new HashSet<>();
+
+        // reading from input file
+        try (Scanner scanner = new Scanner(new File(inputName))) {
+            while (scanner.hasNext()) {
+                String str = scanner.nextLine();
+                if (!str.matches("([A-ZА-ЯЁ] )+[A-ZА-ЯЁ]"))
+                    throw new IllegalArgumentException();
+                height++;
+                width = 0;
+                for (String ch : str.split(" ")) {
+                    width++;
+                    inputField.add(ch.charAt(0));
+                }
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            throw new RuntimeException("File reading failed");
+        }
+
+        for (String str : words) {
+            if (!str.matches("[A-ZА-ЯЁ]+"))
+                throw new IllegalArgumentException();
+
+            boolean done = false;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++)
+                    if (inputField.get(i * width + j) == str.charAt(0)) {
+                        Set<Pair<Integer, Integer>> busy = new HashSet<>();
+                        busy.add(new Pair<>(i, j));
+
+                        if (findWord(str, 1, i, j, busy)) {
+                            answer.add(str);
+                            done = true;
+                            break;
+                        }
+                    }
+                if (done) break;
+            }
+        }
+
+        return answer;
     }
 }
