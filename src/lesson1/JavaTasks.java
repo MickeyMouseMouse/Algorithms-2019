@@ -41,7 +41,7 @@ public class JavaTasks {
     // Трудоемкость: O(n^2), где n - количество входных строк
     // Ресурсоемкость: O(n), где n - количество входных строк
 
-    static class Time {
+    static class Time implements Comparable<Time> {
         private byte hours, minutes, seconds;
         private boolean noon; // false = AM, true = PM
 
@@ -90,16 +90,14 @@ public class JavaTasks {
 
             return result.toString();
         }
-    }
 
-    static public class SortedByTimes implements Comparator<Time> {
         @Override
-        public int compare(Time time1, Time time2) {
-            if (!time1.noon && time2.noon) return -1;
-            if (time1.noon && !time2.noon) return 1;
+        public int compareTo(@NotNull Time other) {
+            if (!noon && other.noon) return -1;
+            if (noon && !other.noon) return 1;
 
-            Integer secThis = 3600 * (time1.hours % 12) + 60 * time1.minutes + time1.seconds;
-            Integer secOther = 3600 * (time2.hours % 12) + 60 * time2.minutes + time2.seconds;
+            Integer secThis = 3600 * (hours % 12) + 60 * minutes + seconds;
+            Integer secOther = 3600 * (other.hours % 12) + 60 * other.minutes + other.seconds;
             return secThis.compareTo(secOther);
         }
     }
@@ -115,7 +113,7 @@ public class JavaTasks {
             throw new RuntimeException("File reading failed");
         }
 
-        input.sort(new SortedByTimes());
+        Collections.sort(input);
 
         // writing to output file
         try (FileWriter writer = new FileWriter(outputName)) {
@@ -156,28 +154,26 @@ public class JavaTasks {
     // Трудоемкость: O(n^2), где n - максимально количество человек, живущих по одному и тому же адресу
     // Ресурсоемкость: O(n), где n - количество входных строк (длина строк также имеет значение)
 
-    static class Person {
+    static class Person implements Comparable<Person> {
         private String surname, name;
 
         public Person(String surname, String name) {
             this.surname = surname;
             this.name = name;
         }
-    }
 
-    static public class SortedByPersons implements Comparator<Person> {
         @Override
-        public int compare(Person p1, Person p2) {
-            if (p1.surname.compareTo(p2.surname) < 0) return -1;
-            if (p1.surname.compareTo(p2.surname) == 0) {
-                if (p1.name.compareTo(p2.name) < 0) return -1;
-                if (p1.name.compareTo(p2.name) == 0) return 0;
+        public int compareTo(@NotNull Person other) {
+            if (surname.compareTo(other.surname) < 0) return -1;
+            if (surname.compareTo(other.surname) == 0) {
+                if (name.compareTo(other.name) < 0) return -1;
+                if (name.compareTo(other.name) == 0) return 0;
             }
             return 1;
         }
     }
 
-    static class Address implements Comparable {
+    static class Address implements Comparable<Address> {
         private String streetName;
         private int number;
 
@@ -187,10 +183,7 @@ public class JavaTasks {
         }
 
         @Override
-        public int compareTo(@NotNull Object obj) {
-            if (this == obj) return 0;
-
-            Address other = (Address) obj;
+        public int compareTo(@NotNull Address other) {
             if (streetName.compareTo(other.streetName) < 0) return -1;
             if (streetName.compareTo(other.streetName) == 0) {
                 if (number < other.number) return -1;
@@ -213,19 +206,21 @@ public class JavaTasks {
 
                 String[] parts = tmp.split(" ");
 
-                Address current = new Address(parts[3], Integer.parseInt(parts[4]));
-                if (input.containsKey(current))
-                    input.get(current).add(new Person(parts[0], parts[1]));
-                else
-                    input.put(current,
+                Address currentAddress = new Address(parts[3], Integer.parseInt(parts[4]));
+                List<Person> currentPersons = input.getOrDefault(currentAddress, null);
+
+                if (currentPersons == null)
+                    input.put(currentAddress,
                             new ArrayList<>(Collections.singletonList(new Person(parts[0], parts[1]))));
+                else
+                    currentPersons.add(new Person(parts[0], parts[1]));
             }
         } catch (IOException e) {
             throw new RuntimeException("File reading failed");
         }
 
         for (List<Person> persons : input.values())
-            persons.sort(new SortedByPersons());
+            Collections.sort(persons);
 
         // writing to output file
         try (FileWriter writer = new FileWriter(outputName)) {
