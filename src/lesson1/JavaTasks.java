@@ -282,7 +282,12 @@ public class JavaTasks {
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext()) {
-                int tmp = (int)(10 * scanner.nextFloat());
+                String str = scanner.nextLine();
+
+                if (!str.matches("(-|)[0-9]+.[0-9]"))
+                    throw new IllegalArgumentException(str);
+
+                int tmp = (int)(10 * Float.parseFloat(str));
 
                 if (tmp >= 0)
                     positives.add(tmp);
