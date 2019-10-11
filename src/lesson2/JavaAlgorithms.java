@@ -114,30 +114,14 @@ public class JavaAlgorithms {
      */
 
     // Трудоемкость: O(menNumber)
-    // Ресурсоемкость: O(menNumber)
+    // Ресурсоемкость: O(1)
     static public int josephTask(int menNumber, int choiceInterval) {
-        int[] array = new int[menNumber];
+        int result = 1;
 
-        for (int i = 0; i < menNumber; i++)
-            array[i] = i + 1;
+        for (int i = 2; i <= menNumber; i++)
+            result = (choiceInterval + result - 1) % i + 1;
 
-        int answer = 0;
-        int currentIndex = -1;
-        for (int i = 0; i < menNumber; i++) {
-            int j = 0;
-            while (j < choiceInterval) {
-                if (++currentIndex == menNumber) currentIndex = 0; // go to the beginning of the array
-                if (array[currentIndex] != 0)
-                    if (i == menNumber - 1) {
-                        answer = array[currentIndex];
-                        break;
-                    } else
-                        j++;
-            }
-            array[currentIndex] = 0; // 0 = deleted number
-        }
-
-        return answer;
+        return result;
     }
 
     /**
@@ -188,7 +172,7 @@ public class JavaAlgorithms {
      * Единица простым числом не считается.
      */
 
-    // Трудоемкость: O(limit * ln(limit))
+    // Трудоемкость: O(limit * sqrt(limit))
     // Ресурсоемкость: O(1)
     static public int calcPrimesNumber(int limit) {
         int answer = 0;
@@ -236,7 +220,8 @@ public class JavaAlgorithms {
      */
 
     // Трудоемкость: O(i * j), где i и j размеры входной матрицы
-    // Ресурсоемкость: O(n), где n - длина искомого слова
+    // Ресурсоемкость: O(i * j), где i и j размеры входной матрицы
+    //      (длина и количество искомых слов также имеют значение)
 
     // field with letters (input data)
     private static class Data {

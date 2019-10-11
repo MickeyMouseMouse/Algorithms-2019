@@ -151,8 +151,10 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
 
-    // Трудоемкость: O(n^2), где n - максимально количество человек, живущих по одному и тому же адресу
-    // Ресурсоемкость: O(n), где n - количество входных строк (длина строк также имеет значение)
+    // Трудоемкость: O(m^2 + n^2), где
+    //      m - количество входных строк
+    //      n - максимально количество человек, живущих по одному и тому же адресу
+    // Ресурсоемкость: O(m), где m - количество входных строк (длина строк также имеет значение)
 
     static class Person implements Comparable<Person> {
         private String surname, name;
@@ -271,28 +273,55 @@ public class JavaTasks {
      * 121.3
      */
 
-    // Трудоемкость: O(n^2), где n - количество входных строк
+    // Трудоемкость: O(n), где n - количество входных строк
     // Ресурсоемкость: O(n), где n - количество входных строк
     static public void sortTemperatures(String inputName, String outputName) {
-        List<Float> input = new ArrayList<>();
+        List<Integer> positives = new ArrayList<>();
+        List<Integer> negatives = new ArrayList<>();
 
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
-            while (scanner.hasNext())
-                input.add(Float.parseFloat(scanner.nextLine()));
+            while (scanner.hasNext()) {
+                int tmp = (int)(10 * scanner.nextFloat());
+
+                if (tmp >= 0)
+                    positives.add(tmp);
+                else
+                    negatives.add(-tmp);
+            }
         } catch (IOException e) {
             throw new RuntimeException("File reading failed");
         }
 
-        Collections.sort(input);
+        int[] n = countingSort(negatives, 2730);
+        int[] p = countingSort(positives, 5000);
 
         // writing to output file
         try (FileWriter writer = new FileWriter(outputName)) {
-            for (float i : input)
-                writer.write(i + "\n");
+            for (int i = n.length - 1; i >= 0; i--)
+                writer.write("-" + n[i] / 10 + '.' + n[i] % 10 + '\n');
+
+            for (int i = 0; i <= p.length - 1; i++)
+                writer.write(p[i] / 10 + "." + p[i] % 10 + '\n');
         } catch (IOException e) {
-            throw new RuntimeException("File writing failed");
+            throw new RuntimeException("File creating failed");
         }
+    }
+
+    private static int[] countingSort(List<Integer> elements, int limit) {
+        int[] count = new int[limit + 1];
+        for (int element: elements) {
+            count[element]++;
+        }
+        for (int j = 1; j <= limit; j++) {
+            count[j] += count[j - 1];
+        }
+        int[] out = new int[elements.size()];
+        for (int j = elements.size() - 1; j >= 0; j--) {
+            out[count[elements.get(j)] - 1] = elements.get(j);
+            count[elements.get(j)]--;
+        }
+        return out;
     }
 
     /**
