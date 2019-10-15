@@ -3,6 +3,7 @@ package lesson2;
 import kotlin.Pair;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -35,15 +36,13 @@ public class JavaAlgorithms {
 
     // Трудоемкость: O(n^2), где n - количество входных значений
     // Ресурсоемкость: O(1)
-    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
+    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws FileNotFoundException {
         List<Integer> input = new ArrayList<>();
 
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext())
                 input.add(Integer.parseInt(scanner.nextLine()));
-        } catch (IOException | NumberFormatException e) {
-            throw new RuntimeException("File reading failed");
         }
 
         int max = 0;
@@ -230,7 +229,7 @@ public class JavaAlgorithms {
         private int width = 0;
     }
 
-    static public Set<String> baldaSearcher(String inputName, Set<String> words) {
+    static public Set<String> baldaSearcher(String inputName, Set<String> words) throws FileNotFoundException {
         Data data = new Data();
         Set<String> answer = new HashSet<>();
 
@@ -244,8 +243,6 @@ public class JavaAlgorithms {
                 for (String ch : str.split(" "))
                     data.inputField.add(ch.charAt(0));
             }
-        } catch (IOException | IllegalArgumentException e) {
-            throw new RuntimeException("File reading failed");
         }
         data.width = data.inputField.size() / data.height;
 

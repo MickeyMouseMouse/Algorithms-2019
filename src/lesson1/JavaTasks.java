@@ -102,15 +102,13 @@ public class JavaTasks {
         }
     }
 
-    static public void sortTimes(String inputName, String outputName) {
+    static public void sortTimes(String inputName, String outputName) throws IOException {
         List<Time> input = new ArrayList<>();
 
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext())
                 input.add(new Time(scanner.nextLine()));
-        } catch (IOException e) {
-            throw new RuntimeException("File reading failed");
         }
 
         Collections.sort(input);
@@ -119,8 +117,6 @@ public class JavaTasks {
         try (FileWriter writer = new FileWriter(outputName)) {
             for (Time time : input)
                 writer.write(time.toString() + "\n");
-        } catch (IOException e) {
-            throw new RuntimeException("File writing failed");
         }
     }
 
@@ -151,10 +147,10 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
 
-    // Трудоемкость: O(m^2 + n^2), где
+    // Трудоемкость: O(m * n)
+    // Ресурсоемкость: O(m * n)
     //      m - количество входных строк
-    //      n - максимально количество человек, живущих по одному и тому же адресу
-    // Ресурсоемкость: O(m), где m - количество входных строк (длина строк также имеет значение)
+    //      n - количество персон, проживающих по одному и тому же адресу (в среднем)
 
     static class Person implements Comparable<Person> {
         private String surname, name;
@@ -195,30 +191,24 @@ public class JavaTasks {
         }
     }
 
-    static public void sortAddresses(String inputName, String outputName) {
+    static public void sortAddresses(String inputName, String outputName) throws IOException {
         Map<Address, List<Person>> input = new TreeMap<>();
 
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
             while (scanner.hasNext()) {
-                String tmp = scanner.nextLine();
+                String str = scanner.nextLine();
 
-                if (!tmp.matches("([А-яЁёA-z]+ ){2}- [А-яЁёA-z]+(-[А-яЁёA-z]+)* [0-9]+"))
+                if (!str.matches("([А-яЁёA-z]+ ){2}- [А-яЁёA-z]+(-[А-яЁёA-z]+)* [0-9]+"))
                     throw new IllegalArgumentException();
 
-                String[] parts = tmp.split(" ");
+                String[] parts = str.split(" ");
 
                 Address currentAddress = new Address(parts[3], Integer.parseInt(parts[4]));
-                List<Person> currentPersons = input.getOrDefault(currentAddress, null);
-
-                if (currentPersons == null)
-                    input.put(currentAddress,
-                            new ArrayList<>(Collections.singletonList(new Person(parts[0], parts[1]))));
-                else
-                    currentPersons.add(new Person(parts[0], parts[1]));
+                List<Person> tmp = input.getOrDefault(currentAddress, new ArrayList<>());
+                tmp.add(new Person(parts[0], parts[1]));
+                input.put(currentAddress, tmp);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("File reading failed");
         }
 
         for (List<Person> persons : input.values())
@@ -237,8 +227,6 @@ public class JavaTasks {
                         writer.write(", ");
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("File writing failed");
         }
     }
 
@@ -275,9 +263,9 @@ public class JavaTasks {
 
     // Трудоемкость: O(n), где n - количество входных строк
     // Ресурсоемкость: O(n), где n - количество входных строк
-    static public void sortTemperatures(String inputName, String outputName) {
-        List<Integer> positives = new ArrayList<>();
-        List<Integer> negatives = new ArrayList<>();
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
+        List<Integer> input = new ArrayList<>();
+        int min = 0;
 
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
@@ -288,28 +276,29 @@ public class JavaTasks {
                     throw new IllegalArgumentException(str);
 
                 int tmp = (int)(10 * Float.parseFloat(str));
-
-                if (tmp >= 0)
-                    positives.add(tmp);
-                else
-                    negatives.add(-tmp);
+                if (tmp < min) min = tmp;
+                input.add(tmp);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("File reading failed");
         }
+        min = Math.abs(min);
 
-        int[] n = countingSort(negatives, 2730);
-        int[] p = countingSort(positives, 5000);
+        for (int i = 0; i < input.size(); i++)
+            input.set(i, input.get(i) + min);
+
+        int[] in = countingSort(input, 7730);
+
+        for (int i = 0; i < in.length; i++)
+            in[i] = in[i] - min;
 
         // writing to output file
         try (FileWriter writer = new FileWriter(outputName)) {
-            for (int i = n.length - 1; i >= 0; i--)
-                writer.write("-" + n[i] / 10 + '.' + n[i] % 10 + '\n');
-
-            for (int i = 0; i <= p.length - 1; i++)
-                writer.write(p[i] / 10 + "." + p[i] % 10 + '\n');
-        } catch (IOException e) {
-            throw new RuntimeException("File creating failed");
+            for (int value : in) {
+                if (value < 0) {
+                    writer.write('-');
+                    value = -value;
+                }
+                writer.write(value / 10 + "." + value % 10 + '\n');
+            }
         }
     }
 
@@ -359,9 +348,9 @@ public class JavaTasks {
      * 2
      */
 
-    // Трудоемкость: O(nln(n)), где n - количество входных значений
+    // Трудоемкость: O(n), где n - количество входных значений
     // Ресурсоемкость: O(n), где n - количество входных значений
-    static public void sortSequence(String inputName, String outputName) {
+    static public void sortSequence(String inputName, String outputName) throws IOException {
         List<Integer> input = new ArrayList<>();
         Map<Integer, Integer> count = new HashMap<>();
 
@@ -370,11 +359,7 @@ public class JavaTasks {
             while (scanner.hasNext()) {
                 int number = Integer.parseInt(scanner.nextLine());
                 input.add(number);
-
-                if (count.containsKey(number))
-                    count.put(number, count.get(number) + 1);
-                else
-                    count.put(number, 1);
+                count.put(number, count.getOrDefault(number, 0) + 1);
             }
         } catch (IOException e) {
             throw new RuntimeException("File reading failed");
