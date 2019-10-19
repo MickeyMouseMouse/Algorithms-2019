@@ -4,7 +4,6 @@ import kotlin.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("unused")
@@ -34,32 +33,33 @@ public class JavaAlgorithms {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
 
-    // Трудоемкость: O(n^2), где n - количество входных значений
+    // Трудоемкость: O(n), где n - количество входных значений
     // Ресурсоемкость: O(1)
     static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws FileNotFoundException {
         List<Integer> input = new ArrayList<>();
 
         // reading from input file
         try (Scanner scanner = new Scanner(new File(inputName))) {
-            while (scanner.hasNext())
-                input.add(Integer.parseInt(scanner.nextLine()));
-        }
-
-        int max = 0;
-        int first = 0;
-        int second = 0;
-        for (int i = 0; i < input.size() - 1; i++) {
-            for (int j = i + 1; j < input.size(); j++) {
-                int profit = input.get(j) - input.get(i);
-                if (profit > max) {
-                    max = profit;
-                    first = i;
-                    second = j;
-                }
+            while (scanner.hasNext()) {
+                String str = scanner.nextLine();
+                if (!str.matches("[0-9]+")) throw new IllegalArgumentException();
+                input.add(Integer.parseInt(str));
             }
         }
 
-        return new Pair<>(first + 1, second + 1);
+        int buy = 0;
+        int sell = 0;
+        int minCost = 0;
+        for (int i = 1; i < input.size(); i++) {
+            if (input.get(minCost) > input.get(i)) minCost = i;
+
+            if (input.get(i) - input.get(minCost) > input.get(sell) - input.get(buy)) {
+                buy = minCost;
+                sell = i;
+            }
+        }
+
+        return new Pair<>(buy + 1, sell + 1);
     }
 
     /**

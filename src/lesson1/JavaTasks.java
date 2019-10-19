@@ -361,8 +361,6 @@ public class JavaTasks {
                 input.add(number);
                 count.put(number, count.getOrDefault(number, 0) + 1);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("File reading failed");
         }
 
         int value = 0;
@@ -381,8 +379,6 @@ public class JavaTasks {
 
             while (max-- > 0)
                 writer.write(value + "\n");
-        } catch (IOException e) {
-            throw new RuntimeException("File writing failed");
         }
     }
 
