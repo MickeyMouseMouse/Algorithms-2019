@@ -1,6 +1,7 @@
 package lesson3
 
 import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
 class TrieTest {
@@ -54,5 +55,20 @@ class TrieTest {
         trie.add("abcde")
 
         assertEquals(setOf("abcdefg", "zyx", "zwv", "zyt", "abcde"), trie)
+    }
+
+    // my tests
+    @Test
+    @Tag("Hard")
+    fun iteratorTest() {
+        val trie = Trie()
+        trie.add("0")
+        trie.add("1")
+        trie.add("12")
+        trie.add("3")
+
+        val iterator = trie.iterator()
+        assertTrue(iterator.hasNext())
+        iterator.next()
     }
 }

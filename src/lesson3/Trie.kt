@@ -1,5 +1,8 @@
 package lesson3
 
+import java.util.*
+import kotlin.NoSuchElementException
+
 class Trie : AbstractMutableSet<String>(), MutableSet<String> {
     override var size: Int = 0
         private set
@@ -62,6 +65,37 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
      * Сложная
      */
     override fun iterator(): MutableIterator<String> {
-        TODO()
+        return Iterator()
+    }
+
+    private inner class Iterator : MutableIterator<String> {
+        val strings = LinkedList(listOf(""))
+        val nodes = LinkedList(listOf(root))
+
+        // Трудоемкость: O(1)
+        // Ресурсоемкость: O(1)
+        override fun hasNext(): Boolean {
+            return nodes.isNotEmpty()
+        }
+
+        // Трудоемкость: O(n), n - количество узлов (nodes)
+        // Ресурсоемкость: O(1)
+        override fun next(): String {
+            while (nodes.isNotEmpty()) {
+                val string = strings.removeLast() // remove the last item from LinkedList and return it
+                for (pair in nodes.removeLast().children)
+                    if (pair.key != 0.toChar()) {
+                        strings.add(string + pair.key)
+                        nodes.add(pair.value)
+                    } else
+                        return string
+            }
+
+            throw NoSuchElementException()
+        }
+
+        override fun remove() {
+            TODO()
+        }
     }
 }
