@@ -95,8 +95,6 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
         }
 
         override fun remove() {
-            current = current?.withZero() ?: throw NoSuchElementException()
-
             TODO()
         }
     }

@@ -94,7 +94,5 @@ class TrieTest {
         val iterator = trie.iterator()
         assertTrue(iterator.hasNext())
         iterator.next()
-        iterator.next()
-        iterator.next()
     }
 }

@@ -3,7 +3,6 @@ package lesson3
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-
 class MyTestsForBinaryTree {
     @Test
     fun remove() {
@@ -12,6 +11,7 @@ class MyTestsForBinaryTree {
         tree.add(2)
         tree.add(7)
         tree.add(10)
+
         tree.remove(2)
 
         val answer = KtBinaryTree<Int>()
