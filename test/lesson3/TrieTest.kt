@@ -60,15 +60,41 @@ class TrieTest {
     // my tests
     @Test
     @Tag("Hard")
+    fun treeTest() {
+        val trie = Trie()
+        trie.add("mickey")
+        trie.add("mouse")
+        trie.add("miss")
+        trie.add("me")
+
+        assertEquals(4, trie.size)
+        assertTrue("mouse" in trie)
+        assertFalse("micke" in trie)
+
+        trie.remove("mouse")
+
+        assertFalse("mouse" in trie)
+        assertFalse("?" in trie)
+
+        trie.clear()
+
+        assertEquals(0, trie.size)
+    }
+
+    @Test
+    @Tag("Hard")
     fun iteratorTest() {
         val trie = Trie()
         trie.add("0")
         trie.add("1")
         trie.add("12")
         trie.add("3")
+        trie.add("345")
 
         val iterator = trie.iterator()
         assertTrue(iterator.hasNext())
+        iterator.next()
+        iterator.next()
         iterator.next()
     }
 }

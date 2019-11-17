@@ -71,6 +71,7 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
     private inner class Iterator : MutableIterator<String> {
         val strings = LinkedList(listOf(""))
         val nodes = LinkedList(listOf(root))
+        var current: String? = null
 
         // Трудоемкость: O(1)
         // Ресурсоемкость: O(1)
@@ -82,19 +83,20 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
         // Ресурсоемкость: O(1)
         override fun next(): String {
             while (nodes.isNotEmpty()) {
-                val string = strings.removeLast() // remove the last item from LinkedList and return it
+                current = strings.removeLast() // remove the last item from LinkedList and return it
                 for (pair in nodes.removeLast().children)
                     if (pair.key != 0.toChar()) {
-                        strings.add(string + pair.key)
+                        strings.add(current + pair.key)
                         nodes.add(pair.value)
-                    } else
-                        return string
+                    } else return current!!
             }
 
             throw NoSuchElementException()
         }
 
         override fun remove() {
+            current = current?.withZero() ?: throw NoSuchElementException()
+
             TODO()
         }
     }
