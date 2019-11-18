@@ -15,6 +15,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         var left: Node<T>? = null
         var parent: Node<T>? = null
 
+        // получить узел с минимальным значением
         fun getMin(): Node<T> {
             var min = this
             while (min.left != null)
@@ -68,45 +69,46 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
      * Удаление элемента в дереве
      * Средняя
      */
-    // Трудоемкость: O( lg(n) ), где n - "глубина" дерева
+    // Трудоемкость: O( lg(n) ), где n - глубина дерева
     // Ресурсоемкость: O(1)
     override fun remove(element: T): Boolean {
-        val tree = find(element) ?: return false
-        deleteNode(tree)
+        val node = find(element) ?: return false
+        deleteNode(node)
         return true
     }
 
     private fun deleteNode(element: Node<T>) {
         size--
         when {
-            element.right == null -> change(element.left, element)
-            element.left == null -> change(element.right, element)
+            element.right == null -> swapNodes(element.left, element)
+            element.left == null -> swapNodes(element.right, element)
             else -> {
                 var minOnRight = element.right
                 while (minOnRight!!.left != null)
                     minOnRight = minOnRight.left
 
                 if (element != minOnRight.parent) {
-                    change(minOnRight.right, minOnRight)
+                    swapNodes(minOnRight.right, minOnRight)
                     minOnRight.right = element.right
                     minOnRight.right!!.parent = minOnRight
                 }
 
-                change(minOnRight, element)
+                swapNodes(minOnRight, element)
                 minOnRight.left = element.left
                 minOnRight.left!!.parent = minOnRight
             }
         }
     }
 
-    private fun change(first: Node<T>?, second: Node<T>) {
+    // поменять местами узлы first и second
+    private fun swapNodes(first: Node<T>?, second: Node<T>) {
         when {
             second.parent == null -> root = first
             second == second.parent!!.right -> second.parent!!.right = first
             else -> second.parent!!.left = first
         }
 
-        if (first != null) first.parent = second.parent
+        first?.parent = second.parent
     }
 
     override operator fun contains(element: T): Boolean {
@@ -129,14 +131,14 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     private fun getNextNode(element: Node<T>): Node<T>? {
         if (element.right != null) return element.right!!.getMin()
 
-        var el = element // copy for modification
+        var el = element // необходимо изменять element => нужна его копия
         var result = el.parent
-        if (result == null) return result
-        while (result!!.right == el) {
-            el = result
-            result = result.parent
-            if (result == null) break
-        }
+        if (result != null)
+            while (result!!.right == el) {
+                el = result
+                result = result.parent
+                if (result == null) break
+            }
 
         return result
     }
@@ -157,7 +159,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
          * Поиск следующего элемента
          * Средняя
          */
-        // Трудоемкость: O( lg(n) ), где n - "глубина" дерева
+        // Трудоемкость: O( lg(n) ), где n - глубина дерева
         // Ресурсоемкость: O(1)
         override fun next(): T {
             currentNode = nextNode
@@ -174,7 +176,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
          * Удаление следующего элемента
          * Сложная
          */
-        // Трудоемкость: O( lg(n) ), где n - "глубина" дерева
+        // Трудоемкость: O( lg(n) ), где n - глубина дерева
         // Ресурсоемкость: O(1)
         override fun remove() {
             currentNode?.let { deleteNode(it) } ?: throw NoSuchElementException()
