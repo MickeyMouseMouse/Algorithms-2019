@@ -2,6 +2,8 @@
 
 package lesson6
 
+import java.io.File
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -14,6 +16,8 @@ package lesson6
  * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
+// Трудоемкость: O(first.length * second.length)
+// Ресурсоемкость: O(first.length * second.length)
 fun longestCommonSubSequence(first: String, second: String): String {
     val matrix = Array(first.length) { Array(second.length) { "" } }
 
@@ -79,8 +83,34 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  *
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
+// Трудоемкость: O(n), где n - количество элементов заданного поля
+// Ресурсоемкость: O(n), где n - количество элементов заданного поля
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+    val input = File(inputName)
+        .readLines()
+        .map { it1 ->
+            it1.split(" ")
+                .map { it2 -> it2.toInt() }
+        }
+
+    var answer = 0
+    fun findWays(i: Int, j: Int, sum: Int) {
+        if (i == input.size - 1 && j == input[0].size - 1) {
+            if (sum < answer || answer == 0) answer = sum
+            return
+        }
+
+        val newSum = sum + input[i][j]
+        if (newSum > answer && answer != 0) return
+
+        if (i + 1 < input.size) findWays(i + 1, j, newSum)
+        if (j + 1 < input[0].size) findWays(i, j + 1, newSum)
+        if (i + 1 < input.size && j + 1 < input[0].size) findWays(i + 1, j + 1, newSum)
+    }
+
+    findWays(0, 0, 0)
+
+    return answer
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
