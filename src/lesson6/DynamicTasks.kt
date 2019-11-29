@@ -15,7 +15,32 @@ package lesson6
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+    val matrix = Array(first.length) { Array(second.length) { "" } }
+
+    fun getMaxString(numLine: Int, numColumn: Int): String {
+        if (numLine == 0 || numColumn == 0) return ""
+
+        var result = ""
+        var max = 0
+        for (i in 0 until numLine)
+            for (j in 0 until numColumn)
+                if (matrix[i][j].length > max) {
+                    max = matrix[i][j].length
+                    result = matrix[i][j]
+                }
+
+        return result
+    }
+
+    var answer = ""
+    for (i in 0 until first.length)
+        for (j in 0 until second.length)
+            if (first[i] == second[j]) {
+                matrix[i][j] = getMaxString(i, j) + first[i]
+                if (matrix[i][j].length > answer.length) answer = matrix[i][j]
+            }
+
+    return answer
 }
 
 /**
