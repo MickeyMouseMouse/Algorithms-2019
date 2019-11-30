@@ -59,8 +59,31 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
+// Трудоемкость: O(list.size)
+// Ресурсоемкость: O(list.size)
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+    when (list.size) {
+        0 -> return listOf()
+        1 -> return list
+    }
+
+    var answer = listOf<Int>()
+
+    fun makeSequences(i: Int, seq: List<Int>) {
+        for (j in i + 1 until list.size)
+            if (seq[seq.size - 1] < list[j]) {
+                val newSeq = seq.toMutableList()
+                newSeq.add(list[j])
+                makeSequences(j, newSeq)
+            }
+
+        if (seq.size > answer.size) answer = seq
+    }
+
+    for (i in 0 until list.size - 1)
+        makeSequences(i, listOf(list[i]))
+
+    return answer
 }
 
 /**
@@ -93,24 +116,44 @@ fun shortestPathOnField(inputName: String): Int {
                 .map { it2 -> it2.toInt() }
         }
 
-    var answer = 0
-    fun findWays(i: Int, j: Int, sum: Int) {
-        if (i == input.size - 1 && j == input[0].size - 1) {
-            if (sum < answer || answer == 0) answer = sum
-            return
-        }
+    val matrix = Array(input.size) { IntArray(input[0].size) { Int.MAX_VALUE } }
+    matrix[0][0] = 0
 
-        val newSum = sum + input[i][j]
-        if (newSum > answer && answer != 0) return
+    val visited = mutableSetOf<Pair<Int, Int>>()
+    val next = mutableListOf<Pair<Int, Int>>()
+    next.add(Pair(0, 0))
 
-        if (i + 1 < input.size) findWays(i + 1, j, newSum)
-        if (j + 1 < input[0].size) findWays(i, j + 1, newSum)
-        if (i + 1 < input.size && j + 1 < input[0].size) findWays(i + 1, j + 1, newSum)
+    fun fillMatrix(i: Int, j: Int) {
+        next.removeAt(0)
+
+        if (i + 1 < input.size)
+            if (Pair(i + 1, j) !in visited)
+                if (matrix[i][j] + input[i + 1][j] < matrix[i + 1][j]) {
+                    matrix[i + 1][j] = matrix[i][j] + input[i + 1][j]
+                    next.add(Pair(i + 1, j))
+                }
+
+        if (j + 1 < input[0].size)
+            if (Pair(i, j + 1) !in visited)
+                if (matrix[i][j] + input[i][j + 1] < matrix[i][j + 1]) {
+                    matrix[i][j + 1] = matrix[i][j] + input[i][j + 1]
+                    next.add(Pair(i, j + 1))
+                }
+
+        if (i + 1 < input.size && j + 1 < input[0].size)
+            if (Pair(i + 1, j + 1) !in visited)
+                if (matrix[i][j] + input[i + 1][j + 1] < matrix[i + 1][j + 1]) {
+                    matrix[i + 1][j + 1] = matrix[i][j] + input[i + 1][j + 1]
+                    next.add(Pair(i + 1, j + 1))
+                }
+
+        visited.add(Pair(i, j))
     }
 
-    findWays(0, 0, 0)
+    while (next.isNotEmpty())
+        fillMatrix(next[0].first, next[0].second)
 
-    return answer
+    return matrix[matrix.size - 1][matrix[0].size - 1]
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
