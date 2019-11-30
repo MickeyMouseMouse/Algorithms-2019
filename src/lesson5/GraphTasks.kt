@@ -2,6 +2,8 @@
 
 package lesson5
 
+import java.lang.IllegalArgumentException
+
 /**
  * Эйлеров цикл.
  * Средняя
@@ -90,8 +92,28 @@ fun Graph.minimumSpanningTree(): Graph {
  *
  * Эта задача может быть зачтена за пятый и шестой урок одновременно
  */
+// Трудоемкость: O(n), где n - количество ребер
+// Ресурсоемкость: O(m), m где - количество вершин
 fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
-    TODO()
+    val vertex1 = mutableSetOf<Graph.Vertex>()
+    val vertex2 = mutableSetOf<Graph.Vertex>()
+
+    for (edge in edges) {
+        if (edge.begin in vertex1 && edge.end in vertex2 ||
+            edge.begin in vertex2 && edge.end in vertex1)
+            throw IllegalArgumentException()
+
+        if (edge.end !in vertex1 && edge.begin !in vertex2) {
+            vertex1.add(edge.begin)
+            vertex2.add(edge.end)
+        } else
+            if (edge.end in vertex1)
+                vertex2.add(edge.begin)
+            else
+                vertex1.add(edge.end)
+    }
+
+    return if (vertex1.size >= vertex2.size) vertex1 else vertex2
 }
 
 /**

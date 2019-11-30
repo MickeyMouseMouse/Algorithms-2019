@@ -2,6 +2,7 @@ package lesson5
 
 import lesson5.impl.GraphBuilder
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 abstract class AbstractGraphTests {
@@ -242,6 +243,48 @@ abstract class AbstractGraphTests {
             setOf(cross["A"], cross["B"], cross["C"], cross["D"]),
             cross.largestIndependentVertexSet()
         )
+
+        // my tests
+
+        //      D -- E -- F
+        //      |
+        // A -- B -- C
+        // |
+        // G
+        val testGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            addConnection(a, b)
+            addConnection(b, c)
+            addConnection(b, d)
+            addConnection(d, e)
+            addConnection(e, f)
+            addConnection(a, g)
+        }.build()
+        assertEquals(
+            setOf(testGraph["A"], testGraph["C"], testGraph["D"], testGraph["F"]),
+            testGraph.largestIndependentVertexSet()
+        )
+
+        // A -- D
+        // |    |
+        // B -- C
+        val fail = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            addConnection(a, b)
+            addConnection(b, c)
+            addConnection(c, d)
+            addConnection(d, a)
+        }.build()
+        assertFailsWith<IllegalArgumentException> { fail.largestIndependentVertexSet() }
     }
 
     fun longestSimplePath(longestSimplePath: Graph.() -> Path) {
