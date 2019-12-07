@@ -370,6 +370,45 @@ abstract class AbstractGraphTests {
         }.build()
         val longestPath3 = graph3.longestSimplePath()
         assertEquals(6, longestPath3.length)
-    }
 
+        // my tests
+
+        // A1    A2
+        //
+        // B1    B2
+        //
+        // D1    D2
+        val graph4 = GraphBuilder().apply {
+            val a1 = addVertex("A1")
+            val a2 = addVertex("A2")
+            val b1 = addVertex("B1")
+            val b2 = addVertex("B2")
+            val d1 = addVertex("D1")
+            val d2 = addVertex("D2")
+        }.build()
+        val longestPath4 = graph4.longestSimplePath()
+        assertEquals(0, longestPath4.length)
+
+        // A1 -- A2
+        // |      |
+        // B1    B2
+        // |      |
+        // D1 -- D2
+        val graph5 = GraphBuilder().apply {
+            val a1 = addVertex("A1")
+            val a2 = addVertex("A2")
+            val b1 = addVertex("B1")
+            val b2 = addVertex("B2")
+            val d1 = addVertex("D1")
+            val d2 = addVertex("D2")
+            addConnection(a1, a2)
+            addConnection(a1, b1)
+            addConnection(b1, d1)
+            addConnection(d1, d2)
+            addConnection(d2, b2)
+            addConnection(b2, a2)
+        }.build()
+        val longestPath5 = graph5.longestSimplePath()
+        assertEquals(5, longestPath5.length)
+    }
 }

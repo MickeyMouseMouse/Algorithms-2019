@@ -16,8 +16,13 @@ import java.io.File
  * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
-// Трудоемкость: O(first.length * second.length)
 // Ресурсоемкость: O(first.length * second.length)
+
+// И трудоемкость, и ресурсоемкость зависят от того,
+// как много будет совпадений во входных строках.
+// Чем больше совпадений, тем чаще придется просматривать
+// matrix на предмет наибольшей имеющейся строки и тем более
+// длинные строки придется там хранить.
 fun longestCommonSubSequence(first: String, second: String): String {
     val matrix = Array(first.length) { Array(second.length) { "" } }
 
@@ -59,7 +64,7 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
-// Трудоемкость: O(list.size)
+// Трудоемкость: O(list.size^2)
 // Ресурсоемкость: O(list.size)
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
     when (list.size) {
@@ -111,13 +116,13 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
 fun shortestPathOnField(inputName: String): Int {
     val input = File(inputName)
         .readLines()
-        .map { it1 ->
-            it1.split(" ")
-                .map { it2 -> it2.toInt() }
+        .map { line ->
+            line.split(" ")
+                .map { number -> number.toInt() }
         }
 
-    val matrix = Array(input.size) { IntArray(input[0].size) { Int.MAX_VALUE } }
-    matrix[0][0] = 0
+    val accumulationField = Array(input.size) { IntArray(input[0].size) { Int.MAX_VALUE } }
+    accumulationField[0][0] = 0
 
     val visited = mutableSetOf<Pair<Int, Int>>()
     val next = mutableListOf<Pair<Int, Int>>()
@@ -128,22 +133,22 @@ fun shortestPathOnField(inputName: String): Int {
 
         if (i + 1 < input.size)
             if (Pair(i + 1, j) !in visited)
-                if (matrix[i][j] + input[i + 1][j] < matrix[i + 1][j]) {
-                    matrix[i + 1][j] = matrix[i][j] + input[i + 1][j]
+                if (accumulationField[i][j] + input[i + 1][j] < accumulationField[i + 1][j]) {
+                    accumulationField[i + 1][j] = accumulationField[i][j] + input[i + 1][j]
                     next.add(Pair(i + 1, j))
                 }
 
         if (j + 1 < input[0].size)
             if (Pair(i, j + 1) !in visited)
-                if (matrix[i][j] + input[i][j + 1] < matrix[i][j + 1]) {
-                    matrix[i][j + 1] = matrix[i][j] + input[i][j + 1]
+                if (accumulationField[i][j] + input[i][j + 1] < accumulationField[i][j + 1]) {
+                    accumulationField[i][j + 1] = accumulationField[i][j] + input[i][j + 1]
                     next.add(Pair(i, j + 1))
                 }
 
         if (i + 1 < input.size && j + 1 < input[0].size)
             if (Pair(i + 1, j + 1) !in visited)
-                if (matrix[i][j] + input[i + 1][j + 1] < matrix[i + 1][j + 1]) {
-                    matrix[i + 1][j + 1] = matrix[i][j] + input[i + 1][j + 1]
+                if (accumulationField[i][j] + input[i + 1][j + 1] < accumulationField[i + 1][j + 1]) {
+                    accumulationField[i + 1][j + 1] = accumulationField[i][j] + input[i + 1][j + 1]
                     next.add(Pair(i + 1, j + 1))
                 }
 
@@ -153,7 +158,7 @@ fun shortestPathOnField(inputName: String): Int {
     while (next.isNotEmpty())
         fillMatrix(next[0].first, next[0].second)
 
-    return matrix[matrix.size - 1][matrix[0].size - 1]
+    return accumulationField[accumulationField.size - 1][accumulationField[0].size - 1]
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"

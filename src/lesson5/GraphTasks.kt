@@ -3,6 +3,7 @@
 package lesson5
 
 import java.lang.IllegalArgumentException
+import java.util.*
 
 /**
  * Эйлеров цикл.
@@ -136,6 +137,26 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  *
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
+// Трудоемкость: O(n!), где n - количество вершин
+// Ресурсоемкость: O(n!), где n - количество вершин
 fun Graph.longestSimplePath(): Path {
-    TODO()
+    var answer = Path()
+    val paths = PriorityQueue<Path>()
+
+    for (i in vertices)
+        paths.offer(Path(i))
+
+    var max = 0
+    while (paths.isNotEmpty()) {
+        val tmp = paths.poll()
+        if (max < tmp.length) {
+            max = tmp.length
+            answer = tmp
+        }
+
+        for (i in getNeighbors(tmp.vertices[tmp.length]))
+            if (i !in tmp) paths.offer(Path(tmp, this, i))
+    }
+
+    return answer
 }
